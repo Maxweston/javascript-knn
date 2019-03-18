@@ -57,10 +57,6 @@ csv()
   distances.forEach(value => {
     heap.insert(value)
   })
-  // console.log(heap)
-  // console.log(heap.extractMin())
-  // let distance = euclideanDistance(trainingFeatureVector, classifyVector)
-  // console.log(distance)
   // now find distance matches of the top elements in the heap
   var kLengthHeap = heap.data
   kLengthHeap = kLengthHeap.slice(0, k)
