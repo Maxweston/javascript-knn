@@ -11,6 +11,8 @@ let trainingDataWithResult = []
 let classifyVector = []
 let distances = []
 let k = 3
+
+// TODO: convert to using papaParse.
 csv()
 .fromFile(csvFilePath)
 .then((jsonObj)=>{
