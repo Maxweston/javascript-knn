@@ -7,8 +7,10 @@ const minHeap = require('./minHeap')
 // const mathJS = require('mathjs')
 let trainingData
 let trainingFeatureVector = []
+let trainingDataWithResult = []
 let classifyVector = []
 let distances = []
+let k = 3
 csv()
 .fromFile(csvFilePath)
 .then((jsonObj)=>{
@@ -17,9 +19,9 @@ csv()
     trainingData.forEach(observation => {
       let observationVector = []
       Object.keys(observation).forEach(componentKey => {
-        if (componentKey !== 'Outcome') {
+        // if (componentKey !== 'Outcome') {
           observationVector.push(observation[componentKey])
-        }
+        // }
       })
       trainingFeatureVector.push(observationVector)
     })
@@ -39,20 +41,43 @@ csv()
     classifyVector = observationVector
     // console.log(classifyVector)
   })
-  trainingFeatureVector.forEach(featureVector => {
+  // console.log('trainingFeatureVector', trainingFeatureVector)
+  trainingFeatureVector.forEach((featureVec, index) => {
+    // console.log()
     // console.log('classifyVector', classifyVector)
-    let distance = euclideanDistance(featureVector, classifyVector)
+    var distancefeatureVec = featureVec.slice(0, 8)
+    // console.log(distancefeatureVec)
+    let distance = euclideanDistance(distancefeatureVec, classifyVector)
+    trainingFeatureVector[index].push(distance)
     // console.log(distance)
     distances.push(distance)
   })
   let heap = new minHeap()
+  // console.log('distances', distances)
   distances.forEach(value => {
     heap.insert(value)
   })
   // console.log(heap)
-  console.log(heap.extractMin())
+  // console.log(heap.extractMin())
   // let distance = euclideanDistance(trainingFeatureVector, classifyVector)
   // console.log(distance)
+  // now find distance matches of the top elements in the heap
+  var kLengthHeap = heap.data
+  kLengthHeap = kLengthHeap.slice(0, k)
+  var featureVectorNearest = []
+  trainingFeatureVector.forEach((vec, index) => {
+    kLengthHeap.forEach(heapEntry => {
+      if (vec[9] === heapEntry) {
+        featureVectorNearest.push(trainingFeatureVector[index])
+      }
+    })
+  })
+  var neighboursResultArray = []
+  featureVectorNearest.forEach(vec => {
+    neighboursResultArray.push(vec[8])
+  })
+
+  console.log(mode(neighboursResultArray))
 })
 
 
@@ -74,6 +99,30 @@ function subVec(componentOne, componentTwo) {
   // console.log(componentOne)
   // console.log(componentTwo)
   return (componentOne - componentTwo) * (componentOne - componentTwo)
+}
+
+function mode(numbers) {
+  // as result can be bimodal or multi-modal,
+  // the returned result is provided as an array
+  // mode of [3, 5, 4, 4, 1, 1, 2, 3] = [1, 3, 4]
+  var modes = [], count = [], i, number, maxIndex = 0;
+
+  for (i = 0; i < numbers.length; i += 1) {
+      number = numbers[i];
+      count[number] = (count[number] || 0) + 1;
+      if (count[number] > maxIndex) {
+          maxIndex = count[number];
+      }
+  }
+
+  for (i in count)
+      if (count.hasOwnProperty(i)) {
+          if (count[i] === maxIndex) {
+              modes.push(Number(i));
+          }
+      }
+
+  return modes;
 }
 
 // function dot(vecOne, vecTwo) {
