@@ -1,9 +1,12 @@
 
 // extract data from training set.
+var fs = require('fs')
 const csvFilePath = './data/diabetes.csv'
+// const baselineData = require('./data/diabetes.csv')
 const dataToClassify = './data/classifyData.csv'
 const csv = require('csvtojson')
 const minHeap = require('./minHeap')
+const papaParse = require('papaparse')
 // const mathJS = require('mathjs')
 let trainingData
 let trainingFeatureVector = []
@@ -11,7 +14,25 @@ let trainingDataWithResult = []
 let classifyVector = []
 let distances = []
 let k = 3
+let baselineData
+let classificationData
 
+fs.readFile('./data/diabetes.csv', 'utf-8' ,(err, data) => {
+  if (err) throw err;
+  baselineData = papaParse.parse(data, { delimiter: ',' }).data
+  console.log(baselineData)
+});
+
+fs.readFile('./data/classifyData.csv', 'utf-8' ,(err, data) => {
+  if (err) throw err;
+  classificationData = papaParse.parse(data, { delimiter: ',' }).data
+  console.log(classificationData)
+});
+
+// var data = papaParse.parse(baselineData, {
+//   delimiter: ','
+// })
+// console.log(data)
 // TODO: convert to using papaParse.
 csv()
 .fromFile(csvFilePath)
@@ -75,7 +96,7 @@ csv()
     neighboursResultArray.push(vec[8])
   })
 
-  console.log(mode(neighboursResultArray))
+  // console.log(mode(neighboursResultArray))
 })
 
 
