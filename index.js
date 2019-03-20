@@ -16,11 +16,24 @@ let distances = []
 let k = 3
 
 
-async function readCSV(filePath) {
-  let file
-  file = await fs.readFile(filePath, 'utf-8')
-  console.log(file)
-  return file
+function readCSV(filePath) {
+  return new Promise((resolve,reject)=>{
+    fs.readFile(filePath,'utf-8',(err, data)=>{
+      if (err) {
+        reject(err); // in the case of error, control flow goes to the catch block with the error occured.
+      }
+      else{
+        resolve(data);  // in the case of success, control flow goes to the then block with the content of the file.
+      }
+    });
+  })
+  .then((data)=>{
+    console.log(data)
+    return data
+  })
+  .catch((err)=>{
+    throw err; //  handle error here.
+  })
 }
 
 // var readMyFile = function(path, cb) {
@@ -30,8 +43,7 @@ async function readCSV(filePath) {
 //   });
 // };
 
-async function parseCSV(CSV) {
-  console.log(CSV)
+function parseCSV(CSV) {
   return papaParse.parse(CSV, { delimiter: ',' }).data
 }
 
@@ -60,12 +72,13 @@ async function parseCSV(CSV) {
 //   // console.log(dataLength)
 // }
 
-async function kNN() {
+function kNN() {
   // read baseline csv 
-  baselineCSV = await readCSV('./data/diabetes.csv')
+  baselineCSV = readCSV('./data/diabetes.csv')
   console.log(baselineCSV)
   // format CSV to JSON
   baselineCSV = parseCSV(baselineCSV)
+  console.log(baselineCSV)
   // console.log('kNN baseline', baseline)
   // split(baseline)
 }
