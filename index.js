@@ -14,20 +14,63 @@ let trainingDataWithResult = []
 let classifyVector = []
 let distances = []
 let k = 3
-let baselineData
-let classificationData
 
-fs.readFile('./data/diabetes.csv', 'utf-8' ,(err, data) => {
-  if (err) throw err;
-  baselineData = papaParse.parse(data, { delimiter: ',' }).data
-  console.log(baselineData)
-});
 
-fs.readFile('./data/classifyData.csv', 'utf-8' ,(err, data) => {
-  if (err) throw err;
-  classificationData = papaParse.parse(data, { delimiter: ',' }).data
-  console.log(classificationData)
-});
+async function readCSV(filePath) {
+  let file
+  file = await fs.readFile(filePath, 'utf-8')
+  console.log(file)
+  return file
+}
+
+// var readMyFile = function(path, cb) {
+//   fs.readFile(path, 'utf8', function(err, content) {
+//     if (err) return cb(err, null);
+//     cb(null, content);
+//   });
+// };
+
+async function parseCSV(CSV) {
+  console.log(CSV)
+  return papaParse.parse(CSV, { delimiter: ',' }).data
+}
+
+// async function getBaselineData() {
+//   let baselineData
+//   baseLineData = fs.readFile('./data/diabetes.csv', 'utf-8' , (err, data) => {
+//     if (err) throw err;
+//     return papaParse.parse(data, { delimiter: ',' }).data
+//     console.log(baselineData)
+//   });
+//   console.log(baselineData)
+// }
+
+// async function getClassificationData() {
+//   let classificationData
+//   return fs.readFile('./data/classifyData.csv', 'utf-8' , (err, data) => {
+//     if (err) throw err;
+//     classificationData = papaParse.parse(data, { delimiter: ',' }).data
+//     console.log(classificationData)
+//     return classificationData
+//   });
+// }
+
+// function split(baslineData) {
+//   dataLength = baslineData.length
+//   // console.log(dataLength)
+// }
+
+async function kNN() {
+  // read baseline csv 
+  baselineCSV = await readCSV('./data/diabetes.csv')
+  console.log(baselineCSV)
+  // format CSV to JSON
+  baselineCSV = parseCSV(baselineCSV)
+  // console.log('kNN baseline', baseline)
+  // split(baseline)
+}
+
+kNN()
 
 // var data = papaParse.parse(baselineData, {
 //   delimiter: ','
