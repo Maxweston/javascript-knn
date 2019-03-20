@@ -17,8 +17,8 @@ let k = 3
 
 
 function readCSV(filePath) {
-  return new Promise((resolve,reject)=>{
-    fs.readFile(filePath,'utf-8',(err, data)=>{
+  return new Promise( (resolve,reject) => {
+    fs.readFile(filePath,'utf-8',(err, data) => {
       if (err) {
         reject(err); // in the case of error, control flow goes to the catch block with the error occured.
       }
@@ -27,11 +27,10 @@ function readCSV(filePath) {
       }
     });
   })
-  .then((data)=>{
-    console.log(data)
+  .then((data) => {
     return data
   })
-  .catch((err)=>{
+  .catch((err) => {
     throw err; //  handle error here.
   })
 }
@@ -67,18 +66,25 @@ function parseCSV(CSV) {
 //   });
 // }
 
-// function split(baslineData) {
-//   dataLength = baslineData.length
-//   // console.log(dataLength)
-// }
+function split(baslineData) {
+  const dataLength = baslineData.length
+  const trainingLength = (dataLength/100)*70
+  const testingLength = (dataLength/100)*30
+  console.log(dataLength)
+  console.log(trainingLength)
+  console.log(testingLength)
+  console.log(trainingLength + testingLength)
 
-function kNN() {
+}
+
+async function kNN() {
   // read baseline csv 
-  baselineCSV = readCSV('./data/diabetes.csv')
-  console.log(baselineCSV)
+  baselineData = await readCSV('./data/diabetes.csv')
   // format CSV to JSON
-  baselineCSV = parseCSV(baselineCSV)
-  console.log(baselineCSV)
+  baselineData = parseCSV(baselineData)
+  // console.log('knn', baselineData)
+  split(baselineData)
+  // console.log(baselineCSV)
   // console.log('kNN baseline', baseline)
   // split(baseline)
 }
