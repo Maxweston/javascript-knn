@@ -10,6 +10,7 @@
   "dependencies": {
     "csvtojson": "^2.0.8",
     "mathjs": "^5.7.0",
+    "numjs": "^0.16.0",
     "papaparse": "^4.6.3"
   }
 }

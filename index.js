@@ -1,6 +1,7 @@
 
 // extract data from training set.
 var fs = require('fs')
+var nj = require('numjs')
 const csvFilePath = './data/diabetes.csv'
 // const baselineData = require('./data/diabetes.csv')
 const dataToClassify = './data/classifyData.csv'
@@ -35,46 +36,22 @@ function readCSV(filePath) {
   })
 }
 
-// var readMyFile = function(path, cb) {
-//   fs.readFile(path, 'utf8', function(err, content) {
-//     if (err) return cb(err, null);
-//     cb(null, content);
-//   });
-// };
-
 function parseCSV(CSV) {
   return papaParse.parse(CSV, { delimiter: ',' }).data
 }
 
-// async function getBaselineData() {
-//   let baselineData
-//   baseLineData = fs.readFile('./data/diabetes.csv', 'utf-8' , (err, data) => {
-//     if (err) throw err;
-//     return papaParse.parse(data, { delimiter: ',' }).data
-//     console.log(baselineData)
-//   });
-//   console.log(baselineData)
-// }
-
-// async function getClassificationData() {
-//   let classificationData
-//   return fs.readFile('./data/classifyData.csv', 'utf-8' , (err, data) => {
-//     if (err) throw err;
-//     classificationData = papaParse.parse(data, { delimiter: ',' }).data
-//     console.log(classificationData)
-//     return classificationData
-//   });
-// }
-
-function split(baslineData) {
-  const dataLength = baslineData.length
-  const trainingLength = (dataLength/100)*70
-  const testingLength = (dataLength/100)*30
-  console.log(dataLength)
-  console.log(trainingLength)
-  console.log(testingLength)
-  console.log(trainingLength + testingLength)
-
+function split(baselineData) {
+  const trainingLength = Math.round((baselineData.length/100)*70)
+  let trainingData = []
+  // make training set, by pulling random indexs from the baselineData.
+  // this would leave random data left in the test data.
+  for (i = 0; i < trainingLength; i++) {
+    trainingData.push(baselineData.splice(Math.round(Math.random()*10), 1)[0])
+  }
+  return {
+    trainingData,
+    testingData: baselineData
+  }
 }
 
 async function kNN() {
@@ -82,11 +59,15 @@ async function kNN() {
   baselineData = await readCSV('./data/diabetes.csv')
   // format CSV to JSON
   baselineData = parseCSV(baselineData)
-  // console.log('knn', baselineData)
-  split(baselineData)
-  // console.log(baselineCSV)
-  // console.log('kNN baseline', baseline)
-  // split(baseline)
+  // remove the headings
+  baselineData.splice(0, 1)
+  let { trainingData, testingData } = split(baselineData)
+  let distances = []
+  // get euclidean distances
+  for (i = 0; i < testingData.length; i++) {
+    distances.push(euclideanDistance(trainingData, testingData))
+  }
+  console.log(distances)
 }
 
 kNN()
@@ -165,11 +146,15 @@ csv()
 // need to make a feature vector for each observation.
 // trainingData.forEach()
 
-function euclideanDistance(vecOne, vecTwo) {
+function euclideanDistance(trainingVector, testingVector) {
+  // let incremtorLength = trainingVector.length > testingVector.length ? testingVector.length : trainingVector.length
   // console.log(vecOne, vecTwo)
+  console.log(trainingVector)
+  console.log(testingVector)
   let sum = 0
-  for(i = 0; i < vecOne.length; i++) {
-    sum += subVec(vecOne[i], vecTwo[i])
+  for(i = 0; i < testingVector.length; i++) {
+    // console.log(subVec(trainingVector[i], trainingVector[i]))
+    sum += subVec(trainingVector[i], trainingVector[i])
   }
   sum = Math.sqrt(sum)
   // console.log('sum after sqrt', sum)
