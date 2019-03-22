@@ -43,14 +43,26 @@ function parseCSV(CSV) {
 function split(baselineData) {
   const trainingLength = Math.round((baselineData.length/100)*70)
   let trainingData = []
+  let trainingLabels = []
+  let testingLabels = []
   // make training set, by pulling random indexs from the baselineData.
   // this would leave random data left in the test data.
   for (i = 0; i < trainingLength; i++) {
     trainingData.push(baselineData.splice(Math.round(Math.random()*10), 1)[0])
   }
+  // get training labels by removing from traning data.
+  for (i = 0; i < trainingData.length; i++) {
+    trainingLabels.push(trainingData[i].splice(8, 1)[0])
+  }
+  // get testing labels by removing from testing data.
+  for (i = 0; i < baselineData.length; i++) {
+    testingLabels.push(baselineData[i].splice(8, 1)[0])
+  }
   return {
     trainingData,
-    testingData: baselineData
+    testingData: baselineData,
+    trainingLabels,
+    testingLabels
   }
 }
 
@@ -61,16 +73,44 @@ async function kNN() {
   baselineData = parseCSV(baselineData)
   // remove the headings
   baselineData.splice(0, 1)
-  let { trainingData, testingData } = split(baselineData)
+  let { trainingData, testingData, testingLabels, trainingLabels } = split(baselineData)
   let distances = []
-  // get euclidean distances
-  for (i = 0; i < testingData.length; i++) {
-    distances.push(euclideanDistance(trainingData, testingData))
+  let indexes = []
+  // calculate distances and record index the distance has in each feature vector.
+  trainingData.forEach((trainingVector, trainingIndex) => {
+    testingData.forEach((testingVector, testingIndex) => {
+      distances.push(euclideanDistance(trainingVector, testingVector))
+      indexes.push({ trainingIndex: trainingIndex, testingIndex: testingIndex})
+    })
+  })
+  // console.log(argsort(distances))
+  // disters = [0.2, 0.1, 0.7, 0.3, 0.4, 0.6];
+  // distances
+  // console.log(distances)
+  console.log(argsort(distances));
+  let sortedIndexes = argsort(distances)
+  for (i = 0; i < 3; i++) {
+    console.log(indexes[sortedIndexes[i]])
   }
-  console.log(distances)
 }
 
 kNN()
+
+function euclideanDistance(trainingVector, testingVector) {
+  // let incremtorLength = trainingVector.length > testingVector.length ? testingVector.length : trainingVector.length
+  // console.log(vecOne, vecTwo)
+  // console.log(trainingVector)
+  // console.log(testingVector)
+  let sum = 0
+  // loop over the components of each vector, subtracting one from 
+  for(i = 0; i < testingVector.length; i++) {
+    // console.log(subVec(trainingVector[i], trainingVector[i]))
+    sum += subVec(trainingVector[i], testingVector[i]) ^ 2
+  }
+  sum = Math.sqrt(sum)
+  // console.log(sum)
+  return sum
+}
 
 // var data = papaParse.parse(baselineData, {
 //   delimiter: ','
@@ -146,20 +186,27 @@ csv()
 // need to make a feature vector for each observation.
 // trainingData.forEach()
 
-function euclideanDistance(trainingVector, testingVector) {
-  // let incremtorLength = trainingVector.length > testingVector.length ? testingVector.length : trainingVector.length
-  // console.log(vecOne, vecTwo)
-  console.log(trainingVector)
-  console.log(testingVector)
-  let sum = 0
-  for(i = 0; i < testingVector.length; i++) {
-    // console.log(subVec(trainingVector[i], trainingVector[i]))
-    sum += subVec(trainingVector[i], trainingVector[i])
+function argsort(d) {
+  let ind = []
+  let tmp
+  for (i = 0; i < d.length; i++) {
+    ind[i] = i
   }
-  sum = Math.sqrt(sum)
-  // console.log('sum after sqrt', sum)
-  return sum
+  for (i = 0; i < d.length; i++) {
+    for (j = 0; j < d.length; j++) {
+      if (d[j] > d[i]) {
+        tmp = d[j];
+        d[j] = d[i];
+        d[i] = tmp;
+        tmp = ind[j];
+        ind[j] = ind[i];
+        ind[i] = tmp;
+      }
+    }
+  }
+  return ind;
 }
+
 
 function subVec(componentOne, componentTwo) {
   // console.log(componentOne)
