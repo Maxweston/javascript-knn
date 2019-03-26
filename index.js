@@ -114,7 +114,7 @@ async function kNN(kValue) {
   console.log('k =', kValue, ':', (totalCorrectPredictions/testingData.length) * 100)
 }
 
-for (i = 1; i < 50; i++) {
+for (i = 1; i < 10; i++) {
   kNN(i)
 }
 
@@ -123,7 +123,7 @@ function euclideanDistance(trainingVector, testingVector) {
   // loop over the components of each vector, subtracting one from 
   for(i = 0; i < testingVector.length; i++) {
     // console.log(subVec(trainingVector[i], trainingVector[i]))
-    sum += subVec(trainingVector[i], testingVector[i]) ^ 2
+    sum += subVec(trainingVector[i], testingVector[i]) * subVec(trainingVector[i], testingVector[i])
   }
   sum = Math.sqrt(sum)
   // console.log(sum)
