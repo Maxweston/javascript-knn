@@ -66,7 +66,7 @@ function split(baselineData) {
   }
 }
 
-async function kNN() {
+async function kNN(kValue) {
   // read baseline csv 
   baselineData = await readCSV('./data/diabetes.csv')
   // format CSV to JSON
@@ -74,33 +74,46 @@ async function kNN() {
   // remove the headings
   baselineData.splice(0, 1)
   let { trainingData, testingData, testingLabels, trainingLabels } = split(baselineData)
-  let distances = []
-  let indexes = []
-  // calculate distances and record index the distance has in each feature vector.
-  trainingData.forEach((trainingVector, trainingIndex) => {
-    testingData.forEach((testingVector, testingIndex) => {
+  // need to loop over each testing entry and work out the distance between each training entry.
+    // arg sort each distance vector.
+    // get k top results.
+    // work out mode.
+    // compare result with labels
+  let correctPredictionCount = 0
+  testingData.forEach((testingVector, testingIndex) => {
+    let distances = []
+    let trainingIndexes = []
+    trainingData.forEach((trainingVector, trainingIndex) => {
       distances.push(euclideanDistance(trainingVector, testingVector))
-      indexes.push({ trainingIndex: trainingIndex, testingIndex: testingIndex})
+      trainingIndexes.push(trainingIndex)
     })
+    let sortedIndexes = argsort(distances)
+    let kIndexes = []
+    for (i = 0; i < kValue; i++) {
+      // console.log(trainingIndexes[sortedIndexes[i]])
+      kIndexes.push(trainingIndexes[sortedIndexes[i]])
+    }
+    // get labels form indexes
+    let trainingLabelsFromIndex = []
+    for (let i = 0; i < kIndexes.length; i++) {
+      trainingLabelsFromIndex.push(trainingLabels[kIndexes[i]])
+    }
+    // calculate mode on each set
+    const modeOnTrainingLabels = mode(trainingLabelsFromIndex)
+    // console.log(modeOnTrainingLabels[0])
+    if (modeOnTrainingLabels[0] == testingLabels[testingIndex]) {
+      correctPredictionCount += 1
+    }
   })
-  // console.log(argsort(distances))
-  // disters = [0.2, 0.1, 0.7, 0.3, 0.4, 0.6];
-  // distances
-  // console.log(distances)
-  console.log(argsort(distances));
-  let sortedIndexes = argsort(distances)
-  for (i = 0; i < 3; i++) {
-    console.log(indexes[sortedIndexes[i]])
-  }
+  console.log('k =', kValue)
+  console.log((correctPredictionCount/testingData.length) * 100)
 }
 
-kNN()
+for (i = 1; i < 10; i++) {
+  kNN(i)
+}
 
 function euclideanDistance(trainingVector, testingVector) {
-  // let incremtorLength = trainingVector.length > testingVector.length ? testingVector.length : trainingVector.length
-  // console.log(vecOne, vecTwo)
-  // console.log(trainingVector)
-  // console.log(testingVector)
   let sum = 0
   // loop over the components of each vector, subtracting one from 
   for(i = 0; i < testingVector.length; i++) {
@@ -111,77 +124,6 @@ function euclideanDistance(trainingVector, testingVector) {
   // console.log(sum)
   return sum
 }
-
-// var data = papaParse.parse(baselineData, {
-//   delimiter: ','
-// })
-// console.log(data)
-// TODO: convert to using papaParse.
-csv()
-.fromFile(csvFilePath)
-.then((jsonObj)=>{
-    trainingData = jsonObj
-    // console.log(trainingData)
-    trainingData.forEach(observation => {
-      let observationVector = []
-      Object.keys(observation).forEach(componentKey => {
-        // if (componentKey !== 'Outcome') {
-          observationVector.push(observation[componentKey])
-        // }
-      })
-      trainingFeatureVector.push(observationVector)
-    })
-    // console.log(trainingFeatureVector)
-    
-})
-
-csv()
-.fromFile(dataToClassify)
-.then(jsonObj => {
-  classifyData = jsonObj
-  classifyData.forEach(observation => {
-    let observationVector = []
-    Object.keys(observation).forEach(componentKey => {
-      observationVector.push(observation[componentKey])
-    })
-    classifyVector = observationVector
-    // console.log(classifyVector)
-  })
-  // console.log('trainingFeatureVector', trainingFeatureVector)
-  trainingFeatureVector.forEach((featureVec, index) => {
-    // console.log()
-    // console.log('classifyVector', classifyVector)
-    var distancefeatureVec = featureVec.slice(0, 8)
-    // console.log(distancefeatureVec)
-    let distance = euclideanDistance(distancefeatureVec, classifyVector)
-    trainingFeatureVector[index].push(distance)
-    // console.log(distance)
-    distances.push(distance)
-  })
-  let heap = new minHeap()
-  // console.log('distances', distances)
-  distances.forEach(value => {
-    heap.insert(value)
-  })
-  // now find distance matches of the top elements in the heap
-  var kLengthHeap = heap.data
-  kLengthHeap = kLengthHeap.slice(0, k)
-  var featureVectorNearest = []
-  trainingFeatureVector.forEach((vec, index) => {
-    kLengthHeap.forEach(heapEntry => {
-      if (vec[9] === heapEntry) {
-        featureVectorNearest.push(trainingFeatureVector[index])
-      }
-    })
-  })
-  var neighboursResultArray = []
-  featureVectorNearest.forEach(vec => {
-    neighboursResultArray.push(vec[8])
-  })
-
-  // console.log(mode(neighboursResultArray))
-})
-
 
 // need to make a feature vector for each observation.
 // trainingData.forEach()
@@ -209,8 +151,6 @@ function argsort(d) {
 
 
 function subVec(componentOne, componentTwo) {
-  // console.log(componentOne)
-  // console.log(componentTwo)
   return (componentOne - componentTwo) * (componentOne - componentTwo)
 }
 
@@ -237,7 +177,3 @@ function mode(numbers) {
 
   return modes;
 }
-
-// function dot(vecOne, vecTwo) {
-
-// }
