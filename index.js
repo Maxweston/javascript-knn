@@ -79,7 +79,8 @@ async function kNN(kValue) {
     // get k top results.
     // work out mode.
     // compare result with labels
-  let correctPredictionCount = 0
+  let truePositiveCount = 0
+  let trueNegativeCount = 0
   testingData.forEach((testingVector, testingIndex) => {
     let distances = []
     let trainingIndexes = []
@@ -101,15 +102,19 @@ async function kNN(kValue) {
     // calculate mode on each set
     const modeOnTrainingLabels = mode(trainingLabelsFromIndex)
     // console.log(modeOnTrainingLabels[0])
-    if (modeOnTrainingLabels[0] == testingLabels[testingIndex]) {
-      correctPredictionCount += 1
+    if (modeOnTrainingLabels[0] == 1 && testingLabels[testingIndex] == 1) {
+      truePositiveCount += 1
+    }
+
+    if (modeOnTrainingLabels[0] == 0 && testingLabels[testingIndex] == 0) {
+      trueNegativeCount += 1
     }
   })
-  console.log('k =', kValue)
-  console.log((correctPredictionCount/testingData.length) * 100)
+  totalCorrectPredictions = truePositiveCount + trueNegativeCount
+  console.log('k =', kValue, ':', (totalCorrectPredictions/testingData.length) * 100)
 }
 
-for (i = 1; i < 10; i++) {
+for (i = 1; i < 50; i++) {
   kNN(i)
 }
 
