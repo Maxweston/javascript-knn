@@ -102,6 +102,34 @@ function argsort(d) {
 }
 
 const kNN = new KNNClassifier(2, euclideanDistance)
+const trailAmount = 100
 
 harness.evaluator('./data/diabetes.csv', kNN)
+
+let acc = []
+let pre = []
+let rec = []
+let f1s = []
+
+for (let i = 0; i < trailAmount; i++) {
+  const evaluation = harness.evaluator('./data/diabetes.csv', kNN)
+  acc.push(evaluation.accuracy)
+  pre.push(evaluation.precision)
+  rec.push(evaluation.recall)
+  f1s.push(evaluation.f1)
+}
+
+function arrayMean(array) {
+  var sum = 0;
+  for( var i = 0; i < array.length; i++ ){
+      sum += array[i]//don't forget to add the base
+  }
+  var avg = sum/array.length;
+  return avg
+}
+
+console.log(`average accuracy over ${trailAmount} trails: `, arrayMean(acc))
+console.log(`average precision over ${trailAmount} trails: `, arrayMean(pre))
+console.log(`average recall over ${trailAmount} trails: `, arrayMean(rec))
+console.log(`average f1 over ${trailAmount} trails: `, arrayMean(f1s))
 

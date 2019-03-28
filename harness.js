@@ -20,7 +20,6 @@ function formatCSV(filePath) {
       dataArray[i][j] = parseInt(dataArray[i][j])
     }
   }
-  console.log(dataArray)
   return dataArray
 }
 
@@ -64,8 +63,6 @@ function evaluator(csvPath, algo) {
 }
 
 function evaluate(predictions, labels) {
-  console.log("predictions", predictions)
-  console.log("labels", labels)
   let truePos = 0, falseNeg = 0, falsePos = 0, trueNeg = 0
   for (i = 0; i < labels.length; i++) {
     if(labels[i] === 1) {
@@ -88,10 +85,10 @@ function evaluate(predictions, labels) {
   const recall = truePos / (truePos + falseNeg)
   const f1 = 2 * ((precision * recall) / (precision + recall))
 
-  console.log('accuracy: ', accuracy)
-  console.log('precision: ', precision)
-  console.log('recall: ', recall)
-  console.log('f1: ', f1)
+  // console.log('accuracy: ', accuracy)
+  // console.log('precision: ', precision)
+  // console.log('recall: ', recall)
+  // console.log('f1: ', f1)
 
   return {
     accuracy: accuracy,
