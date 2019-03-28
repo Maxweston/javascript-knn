@@ -102,7 +102,7 @@ function argsort(d) {
 }
 
 const kNN = new KNNClassifier(2, euclideanDistance)
-const trailAmount = 100
+const trailAmount = 10
 
 harness.evaluator('./data/diabetes.csv', kNN)
 

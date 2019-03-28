@@ -85,11 +85,6 @@ function evaluate(predictions, labels) {
   const recall = truePos / (truePos + falseNeg)
   const f1 = 2 * ((precision * recall) / (precision + recall))
 
-  // console.log('accuracy: ', accuracy)
-  // console.log('precision: ', precision)
-  // console.log('recall: ', recall)
-  // console.log('f1: ', f1)
-
   return {
     accuracy: accuracy,
     precision: precision,
