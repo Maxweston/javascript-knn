@@ -50,37 +50,6 @@ class KNNClassifier {
        targets.push(modeOnTrainingLabels)
     })
     return targets
-
-    // testingData.forEach((testingVector, testingIndex) => {
-    //   let distances = []
-    //   let trainingIndexes = []
-    //   trainingData.forEach((trainingVector, trainingIndex) => {
-    //     distances.push(euclideanDistance(trainingVector, testingVector))
-    //     trainingIndexes.push(trainingIndex)
-    //   })
-    //   let sortedIndexes = argsort(distances)
-    //   let kIndexes = []
-    //   for (i = 0; i < kValue; i++) {
-    //     // console.log(trainingIndexes[sortedIndexes[i]])
-    //     kIndexes.push(trainingIndexes[sortedIndexes[i]])
-    //   }
-    //   // get labels form indexes
-    //   let trainingLabelsFromIndex = []
-    //   for (let i = 0; i < kIndexes.length; i++) {
-    //     trainingLabelsFromIndex.push(trainingLabels[kIndexes[i]])
-    //   }
-    //   // calculate mode on each set
-    //   const modeOnTrainingLabels = mode(trainingLabelsFromIndex)
-    //   // console.log(modeOnTrainingLabels[0])
-    //   if (modeOnTrainingLabels[0] == 1 && testingLabels[testingIndex] == 1) {
-    //     truePositiveCount += 1
-    //   }
-  
-    //   if (modeOnTrainingLabels[0] == 0 && testingLabels[testingIndex] == 0) {
-    //     trueNegativeCount += 1
-    //   }
-    // })
-    // totalCorrectPredictions = truePositiveCount + trueNegativeCount
   }
 }
 
@@ -108,7 +77,6 @@ function mode(numbers) {
   if (modes.length > 1) {
     modes = [modes[Math.floor(Math.random() *  modes.length)]]
   }
-  console.log(modes)
   return modes;
 }
 
@@ -133,6 +101,7 @@ function argsort(d) {
   return ind;
 }
 
-const kNN = new KNNClassifier(5, euclideanDistance)
+const kNN = new KNNClassifier(2, euclideanDistance)
 
 harness.evaluator('./data/diabetes.csv', kNN)
+

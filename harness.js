@@ -1,27 +1,27 @@
 var fs = require('fs')
-const papaParse = require('papaparse')
 
-function readCSV(filePath) {
-  return new Promise( (resolve,reject) => {
-    fs.readFile(filePath,'utf-8',(err, data) => {
-      if (err) {
-        reject(err); // in the case of error, control flow goes to the catch block with the error occured.
-      }
-      else{
-        resolve(data);  // in the case of success, control flow goes to the then block with the content of the file.
-      }
-    });
-  })
-  .then((data) => {
-    return data
-  })
-  .catch((err) => {
-    throw err; //  handle error here.
-  })
-}
+function formatCSV(filePath) {
+  var dataArray = [];
+  var fileContents = fs.readFileSync(filePath);
+  var lines = fileContents.toString().split('\n');
+  // split lines from original string
+  for (var i = 1; i < lines.length; i++) {
+	  dataArray.push(lines[i].toString().split(','));
+  }
 
-function parseCSV(CSV) {
-  return papaParse.parse(CSV, { delimiter: ',' }).data
+  // need to remove row delimitter
+  for (let i = 0; i < dataArray.length; i++) {
+    dataArray[i][8] = dataArray[i][8].replace(/[\r\n]/g, "")
+  }
+
+  // parse each data point to an integer
+  for (let i = 0; i < dataArray.length; i++) {
+    for(let j = 0; j < dataArray[i].length; j++) {
+      dataArray[i][j] = parseInt(dataArray[i][j])
+    }
+  }
+  console.log(dataArray)
+  return dataArray
 }
 
 function split(baselineData) {
@@ -50,13 +50,10 @@ function split(baselineData) {
   }
 }
 
-async function evaluator(csvPath, algo) {
-  // read data from csv
-  let baseData = await readCSV(csvPath)
-  // parse csv to JSON
-  baseData = parseCSV(baseData)
-  // remove the headings
-  baseData.splice(0, 1)
+function evaluator(csvPath, algo) {
+  // read data from csv and format
+  baseData = formatCSV(csvPath)
+  // split data
   let { trainingData, testingData, testingLabels, trainingLabels } = split(baseData)
 
   algo.fit(trainingData, trainingLabels)
@@ -67,9 +64,41 @@ async function evaluator(csvPath, algo) {
 }
 
 function evaluate(predictions, labels) {
-  // console.log("predictions", predictions)
-  // console.log("labels", labels)
-  console.log('in evaluate')
+  console.log("predictions", predictions)
+  console.log("labels", labels)
+  let truePos = 0, falseNeg = 0, falsePos = 0, trueNeg = 0
+  for (i = 0; i < labels.length; i++) {
+    if(labels[i] === 1) {
+      if(predictions[i][0] === 1) {
+        truePos++
+      } else {
+        falseNeg++
+      }
+    } else {
+      if (predictions[i][0] === 1) {
+        falsePos++
+      } else {
+        trueNeg++
+      }
+    }
+  }
+
+  const accuracy = (trueNeg + truePos) / labels.length
+  const precision = truePos / (truePos + falsePos)
+  const recall = truePos / (truePos + falseNeg)
+  const f1 = 2 * ((precision * recall) / (precision + recall))
+
+  console.log('accuracy: ', accuracy)
+  console.log('precision: ', precision)
+  console.log('recall: ', recall)
+  console.log('f1: ', f1)
+
+  return {
+    accuracy: accuracy,
+    precision: precision,
+    recall: recall,
+    f1: f1
+  }
 }
 
 module.exports = {
