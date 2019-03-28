@@ -1,4 +1,5 @@
 var fs = require('fs')
+const papaParse = require('papaparse')
 
 function readCSV(filePath) {
   return new Promise( (resolve,reject) => {
@@ -49,19 +50,28 @@ function split(baselineData) {
   }
 }
 
-function evaluator(csvPath, fitMethod, predictMethod) {
+async function evaluator(csvPath, algo) {
   // read data from csv
-  const baseData = await readCSV(csvPath)
+  let baseData = await readCSV(csvPath)
   // parse csv to JSON
-  baseData = parseCSV(baselineData)
+  baseData = parseCSV(baseData)
   // remove the headings
-  baselineData.splice(0, 1)
-  let { trainingData, testingData, testingLabels, trainingLabels } = split(baselineData)
-  
+  baseData.splice(0, 1)
+  let { trainingData, testingData, testingLabels, trainingLabels } = split(baseData)
+
+  algo.fit(trainingData, trainingLabels)
+
+  const predictions = algo.predict(testingData)
+
+  return evaluate(predictions, testingLabels)
+}
+
+function evaluate(predictions, labels) {
+  // console.log("predictions", predictions)
+  // console.log("labels", labels)
+  console.log('in evaluate')
 }
 
 module.exports = {
-  fit: fit,
-  predict: predict,
-  evaluator: evalutator
+  evaluator: evaluator
 }
