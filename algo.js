@@ -18,9 +18,11 @@ function dotProduct(vec1, vec2) {
   return product
 }
 
-function cosineSimilarity(traningVector, testingVector) {
-  let dotPro = dotProduct(traningVector, testingVector)
-  let mag 
+function cosineSimilarity(trainingVector, testingVector) {
+  let dotPro = dotProduct(trainingVector, testingVector)
+  let magA = euclideanDistance(trainingVector, [0, 0, 0, 0, 0, 0, 0, 0])
+  let magB = euclideanDistance(testingVector, [0, 0, 0, 0, 0, 0, 0, 0])
+  return dotPro / (magA * magB)
 }
 
 function subVec(componentOne, componentTwo) {
@@ -116,7 +118,7 @@ function argsort(d) {
 
 for (let j = 1; j < 15; j++) {
   // const kNN = new KNNClassifier(2, euclideanDistance)
-  const kNN = new KNNClassifier(j, euclideanDistance)
+  const kNN = new KNNClassifier(j, cosineSimilarity)
 
   const trailAmount = 100
 
