@@ -10,6 +10,19 @@ function euclideanDistance(trainingVector, testingVector) {
   return sum
 }
 
+function dotProduct(vec1, vec2) {
+  let product = 0
+  for (i = 0; i < vec1.length; i++) {
+    product += vec1[i] * vec2[i]
+  }
+  return product
+}
+
+function cosineSimilarity(traningVector, testingVector) {
+  let dotPro = dotProduct(traningVector, testingVector)
+  let mag 
+}
+
 function subVec(componentOne, componentTwo) {
   return (componentOne - componentTwo) * (componentOne - componentTwo)
 }
@@ -101,35 +114,38 @@ function argsort(d) {
   return ind;
 }
 
-const kNN = new KNNClassifier(2, euclideanDistance)
-const trailAmount = 10
+for (let j = 1; j < 15; j++) {
+  // const kNN = new KNNClassifier(2, euclideanDistance)
+  const kNN = new KNNClassifier(j, euclideanDistance)
 
-harness.evaluator('./data/diabetes.csv', kNN)
+  const trailAmount = 100
 
-let acc = []
-let pre = []
-let rec = []
-let f1s = []
+  harness.evaluator('./data/diabetes.csv', kNN)
 
-for (let i = 0; i < trailAmount; i++) {
-  const evaluation = harness.evaluator('./data/diabetes.csv', kNN)
-  acc.push(evaluation.accuracy)
-  pre.push(evaluation.precision)
-  rec.push(evaluation.recall)
-  f1s.push(evaluation.f1)
-}
+  let acc = []
+  let pre = []
+  let rec = []
+  let f1s = []
 
-function arrayMean(array) {
-  var sum = 0;
-  for( var i = 0; i < array.length; i++ ){
-      sum += array[i]//don't forget to add the base
+  for (let i = 0; i < trailAmount; i++) {
+    const evaluation = harness.evaluator('./data/diabetes.csv', kNN)
+    acc.push(evaluation.accuracy)
+    pre.push(evaluation.precision)
+    rec.push(evaluation.recall)
+    f1s.push(evaluation.f1)
   }
-  var avg = sum/array.length;
-  return avg
+
+  function arrayMean(array) {
+    var sum = 0;
+    for( var i = 0; i < array.length; i++ ){
+        sum += array[i]//don't forget to add the base
+    }
+    var avg = sum/array.length;
+    return avg
+  }
+
+  console.log(`average accuracy over ${trailAmount} trails with k as ${j}: `, arrayMean(acc))
+  console.log(`average precision over ${trailAmount} trails with k as ${j}: `, arrayMean(pre))
+  console.log(`average recall over ${trailAmount} trails with k as ${j}: `, arrayMean(rec))
+  console.log(`average f1 over ${trailAmount} trails with k as ${j}: `, arrayMean(f1s))
 }
-
-console.log(`average accuracy over ${trailAmount} trails: `, arrayMean(acc))
-console.log(`average precision over ${trailAmount} trails: `, arrayMean(pre))
-console.log(`average recall over ${trailAmount} trails: `, arrayMean(rec))
-console.log(`average f1 over ${trailAmount} trails: `, arrayMean(f1s))
-
