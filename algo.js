@@ -10,6 +10,16 @@ function euclideanDistance(trainingVector, testingVector) {
   return sum
 }
 
+function manhattenDistance(trainingVector, testingVector) {
+  let sum = 0
+  // loop over the components of each vector, subtracting one from 
+  for(i = 0; i < testingVector.length; i++) {
+    sum += subVec(trainingVector[i], testingVector[i])
+  }
+  sum = Math.sqrt(sum)
+  return sum
+}
+
 function dotProduct(vec1, vec2) {
   let product = 0
   for (i = 0; i < vec1.length; i++) {
@@ -154,6 +164,10 @@ let distanceMeasures = [
   {
     name: 'chi square distance',
     method: chiSquareDist
+  },
+  {
+    name: 'manhatten distance',
+    method: manhattenDistance
   }
 ]
 
