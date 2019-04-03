@@ -29,6 +29,17 @@ function subVec(componentOne, componentTwo) {
   return (componentOne - componentTwo) * (componentOne - componentTwo)
 }
 
+function chiSquareDist(a, b) {
+  let sum = 0
+  for (i = 0; i < a.length; i++) {
+    const numerator = Math.pow(a[i] - b[i], 2)
+    const denominator = Math.pow(a[i] + b[i], 2)
+    const div = numerator / denominator
+    sum += div
+  }
+  return sum / 2
+}
+
 class KNNClassifier {
   constructor(kValue, distanceMethod) {
     this.kValue = kValue
@@ -116,13 +127,16 @@ function argsort(d) {
   return ind;
 }
 
-for (let j = 1; j < 15; j++) {
+// for (let j = 1; j < 15; j++) {
   // const kNN = new KNNClassifier(2, euclideanDistance)
-  const kNN = new KNNClassifier(j, cosineSimilarity)
+  // const kNN = new KNNClassifier(j, cosineSimilarity)
+  const kNN = new KNNClassifier(5, euclideanDistance)
 
   const trailAmount = 100
 
-  harness.evaluator('./data/diabetes.csv', kNN)
+  console.log(harness.evaluator('./data/diabetes.csv', kNN).f1)
+
+
 
   let acc = []
   let pre = []
@@ -150,4 +164,4 @@ for (let j = 1; j < 15; j++) {
   console.log(`average precision over ${trailAmount} trails with k as ${j}: `, arrayMean(pre))
   console.log(`average recall over ${trailAmount} trails with k as ${j}: `, arrayMean(rec))
   console.log(`average f1 over ${trailAmount} trails with k as ${j}: `, arrayMean(f1s))
-}
+// }
