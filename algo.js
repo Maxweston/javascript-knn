@@ -14,9 +14,8 @@ function manhattenDistance(trainingVector, testingVector) {
   let sum = 0
   // loop over the components of each vector, subtracting one from 
   for(i = 0; i < testingVector.length; i++) {
-    sum += subVec(trainingVector[i], testingVector[i])
+    sum += Math.abs(subVec(trainingVector[i], testingVector[i]))
   }
-  sum = Math.sqrt(sum)
   return sum
 }
 
@@ -87,8 +86,9 @@ class KNNClassifier {
       for (let i = 0; i < kIndexes.length; i++) {
         trainingLabelsFromIndex.push(this.classes[kIndexes[i]])
       }
-      const modeOnTrainingLabels = mode(trainingLabelsFromIndex)
-       targets.push(modeOnTrainingLabels)
+      // const modeOnTrainingLabels = mode(trainingLabelsFromIndex)
+      const modeOnTrainingLabels = highestVote(trainingLabelsFromIndex)
+      targets.push(modeOnTrainingLabels)
     })
     return targets
   }
@@ -129,7 +129,23 @@ function mode(numbers) {
   return modes;
 }
 
-// function highestVote
+function highestVote(numbers) {
+  let yesCount = 0
+  let noCount = 0
+  for (i = 0; i < numbers.length; i++) {
+    if (numbers[i] === 1) {
+      yesCount++
+    } else {
+      noCount++
+    }
+  }
+
+  if (yesCount > noCount) {
+    return [1]
+  } else {
+    return [0]
+  }
+}
 
 function argsort(d) {
   let ind = []

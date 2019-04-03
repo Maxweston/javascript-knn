@@ -1,4 +1,4 @@
-best score:  0.6322580645161291
-best k value:  6
-best distance method:  euclidean Distance
-best scale factor:  4
+best score:  0.6533333333333333
+best k value:  13
+best distance method:  manhatten distance
+best scale factor:  3
