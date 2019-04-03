@@ -106,6 +106,8 @@ function mode(numbers) {
   return modes;
 }
 
+// function highestVote
+
 function argsort(d) {
   let ind = []
   let tmp
@@ -127,41 +129,74 @@ function argsort(d) {
   return ind;
 }
 
-// for (let j = 1; j < 15; j++) {
-  // const kNN = new KNNClassifier(2, euclideanDistance)
-  // const kNN = new KNNClassifier(j, cosineSimilarity)
-  const kNN = new KNNClassifier(5, euclideanDistance)
-
-  const trailAmount = 100
-
-  console.log(harness.evaluator('./data/diabetes.csv', kNN).f1)
-
-
-
-  let acc = []
-  let pre = []
-  let rec = []
-  let f1s = []
-
-  for (let i = 0; i < trailAmount; i++) {
-    const evaluation = harness.evaluator('./data/diabetes.csv', kNN)
-    acc.push(evaluation.accuracy)
-    pre.push(evaluation.precision)
-    rec.push(evaluation.recall)
-    f1s.push(evaluation.f1)
+let distanceMeasures = [
+  {
+    name: 'euclidean Distance', 
+    method: euclideanDistance 
+  },
+  {
+    name: 'cosine similarity',
+    method: cosineSimilarity
+  },
+  {
+    name: 'chi square distance',
+    method: chiSquareDist
   }
+]
 
-  function arrayMean(array) {
-    var sum = 0;
-    for( var i = 0; i < array.length; i++ ){
-        sum += array[i]//don't forget to add the base
+let bestK
+let bestScore = 0
+let bestDistanceMeasure
+// loop over distance measures
+for (let m = 0; m < distanceMeasures.length; m++) {
+  // lopp over k values
+  for (let j = 1; j < 15; j++) {
+    const kNN = new KNNClassifier(j, distanceMeasures[m].method)
+    const result = harness.evaluator('./data/diabetes.csv', kNN).f1
+    if (result > bestScore) {
+      bestK = j
+      bestScore = result
+      bestDistanceMeasure = distanceMeasures[m].name
     }
-    var avg = sum/array.length;
-    return avg
   }
+}
 
-  console.log(`average accuracy over ${trailAmount} trails with k as ${j}: `, arrayMean(acc))
-  console.log(`average precision over ${trailAmount} trails with k as ${j}: `, arrayMean(pre))
-  console.log(`average recall over ${trailAmount} trails with k as ${j}: `, arrayMean(rec))
-  console.log(`average f1 over ${trailAmount} trails with k as ${j}: `, arrayMean(f1s))
+console.log('best score: ', bestScore, 'best k value: ', bestK, 'best distance method: ', bestDistanceMeasure)
+// for (let j = 1; j < 15; j++) {
+//   // const kNN = new KNNClassifier(2, euclideanDistance)
+//   // const kNN = new KNNClassifier(j, cosineSimilarity)
+//   const kNN = new KNNClassifier(5, euclideanDistance)
+
+//   const trailAmount = 100
+
+//   console.log(harness.evaluator('./data/diabetes.csv', kNN).f1)
+
+
+
+//   let acc = []
+//   let pre = []
+//   let rec = []
+//   let f1s = []
+
+//   for (let i = 0; i < trailAmount; i++) {
+//     const evaluation = harness.evaluator('./data/diabetes.csv', kNN)
+//     acc.push(evaluation.accuracy)
+//     pre.push(evaluation.precision)
+//     rec.push(evaluation.recall)
+//     f1s.push(evaluation.f1)
+//   }
+
+//   function arrayMean(array) {
+//     var sum = 0;
+//     for( var i = 0; i < array.length; i++ ){
+//         sum += array[i]//don't forget to add the base
+//     }
+//     var avg = sum/array.length;
+//     return avg
+//   }
+
+//   console.log(`average accuracy over ${trailAmount} trails with k as ${j}: `, arrayMean(acc))
+//   console.log(`average precision over ${trailAmount} trails with k as ${j}: `, arrayMean(pre))
+//   console.log(`average recall over ${trailAmount} trails with k as ${j}: `, arrayMean(rec))
+//   console.log(`average f1 over ${trailAmount} trails with k as ${j}: `, arrayMean(f1s))
 // }
