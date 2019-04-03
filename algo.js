@@ -41,12 +41,13 @@ function chiSquareDist(a, b) {
 }
 
 class KNNClassifier {
-  constructor(kValue, distanceMethod) {
+  constructor(kValue, distanceMethod, scaleFactor = 1) {
     this.kValue = kValue
     this.distanceMethod = distanceMethod
     this.dataPoints
     this.classes
-  }
+    this.scaleFactor = scaleFactor
+  } 
 
   fit(trainData, trainLabels) {
     this.dataPoints = trainData
@@ -59,7 +60,11 @@ class KNNClassifier {
       let distances = []
       let trainingIndexes = []
       this.dataPoints.forEach((trainingVector, trainingIndex) => {
-        distances.push(this.distanceMethod(trainingVector, testingVector))
+
+        distances.push(this.distanceMethod(
+          scaleVectorComponents(trainingVector, this.scaleFactor), 
+          scaleVectorComponents(testingVector, this.scaleFactor)
+        ))
         trainingIndexes.push(trainingIndex)
       })
       let sortedIndexes = argsort(distances)
@@ -77,6 +82,14 @@ class KNNClassifier {
     })
     return targets
   }
+}
+
+// scale vector components.
+function scaleVectorComponents(vector, scaleFactor) {
+  for (i = 0; i < vector.length; i++) {
+    vector[i] * scaleFactor
+  }
+  return vector
 }
 
 function mode(numbers) {
@@ -147,21 +160,26 @@ let distanceMeasures = [
 let bestK
 let bestScore = 0
 let bestDistanceMeasure
+let bestScaleFactor = 0
 // loop over distance measures
 for (let m = 0; m < distanceMeasures.length; m++) {
   // lopp over k values
   for (let j = 1; j < 15; j++) {
-    const kNN = new KNNClassifier(j, distanceMeasures[m].method)
-    const result = harness.evaluator('./data/diabetes.csv', kNN).f1
-    if (result > bestScore) {
-      bestK = j
-      bestScore = result
-      bestDistanceMeasure = distanceMeasures[m].name
+    // loop over scale factor values
+    for (let l = 1; l < 5; l++) {
+      const kNN = new KNNClassifier(j, distanceMeasures[m].method, l)
+      const result = harness.evaluator('./data/diabetes.csv', kNN).f1
+      if (result > bestScore) {
+        bestK = j
+        bestScore = result
+        bestDistanceMeasure = distanceMeasures[m].name
+        bestScaleFactor = l
+      }
     }
   }
 }
 
-console.log('best score: ', bestScore, 'best k value: ', bestK, 'best distance method: ', bestDistanceMeasure)
+console.log('best score: ', bestScore, '\nbest k value: ', bestK, '\nbest distance method: ', bestDistanceMeasure, '\nbest scale factor: ', bestScaleFactor)
 // for (let j = 1; j < 15; j++) {
 //   // const kNN = new KNNClassifier(2, euclideanDistance)
 //   // const kNN = new KNNClassifier(j, cosineSimilarity)

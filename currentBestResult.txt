@@ -1,1 +1,4 @@
-best score:  0.6153846153846154 best k value:  6 best distance method:  euclidean Distance
+best score:  0.6322580645161291
+best k value:  6
+best distance method:  euclidean Distance
+best scale factor:  4
