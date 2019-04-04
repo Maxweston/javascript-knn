@@ -191,23 +191,25 @@ let bestK
 let bestScore = 0
 let bestDistanceMeasure
 let bestScaleFactor = 0
-// loop over distance measures
-for (let m = 0; m < distanceMeasures.length; m++) {
-  // lopp over k values
-  for (let j = 1; j < 15; j++) {
-    // loop over scale factor values
-    for (let l = 1; l < 5; l++) {
-      const kNN = new KNNClassifier(j, distanceMeasures[m].method, l)
-      const result = harness.evaluator('./data/diabetes.csv', kNN).f1
-      if (result > bestScore) {
-        bestK = j
-        bestScore = result
-        bestDistanceMeasure = distanceMeasures[m].name
-        bestScaleFactor = l
+// loop for 5 trials.
+for (let o = 0; o < 5; o++) {
+  // loop over distance measures
+  for (let m = 0; m < distanceMeasures.length; m++) {
+    // lopp over k values
+    for (let j = 1; j < 15; j++) {
+      // loop over scale factor values
+      for (let l = 1; l < 5; l++) {
+        const kNN = new KNNClassifier(j, distanceMeasures[m].method, l)
+        const result = harness.evaluator('./data/diabetes.csv', kNN).f1
+        if (result > bestScore) {
+          bestK = j
+          bestScore = result
+          bestDistanceMeasure = distanceMeasures[m].name
+          bestScaleFactor = l
+        }
       }
     }
   }
 }
-
 console.log('best score: ', bestScore, '\nbest k value: ', bestK, '\nbest distance method: ', bestDistanceMeasure, '\nbest scale factor: ', bestScaleFactor)
 

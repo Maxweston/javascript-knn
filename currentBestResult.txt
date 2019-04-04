@@ -1,4 +1,4 @@
-best score:  0.6578947368421053
+best score:  0.6577181208053691
 best k value:  13
 best distance method:  manhatten distance
 best scale factor:  4
