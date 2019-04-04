@@ -34,8 +34,25 @@ function cosineSimilarity(trainingVector, testingVector) {
   return dotPro / (magA * magB)
 }
 
+function dimensionalityInvariateSimilarity(trainingVector, testingVector) {
+  // work out min value between the two
+  let dist = 0
+  for (i = 0; i < trainingVector.length; i++) {
+    const min = Math.min(trainingVector[i], testingVector[i])
+    const max = Math.max(trainingVector[i], testingVector[i])
+    if (min >= 0) {
+      sim = 1 - ((1 + min) / (1 + max))
+    } else {
+      sim = 1 - ((1 + min + Math.abs(min)) / (1 + max + Math.abs(min)))
+    }
+    dist += sim
+  }
+  return dist
+}
+
 function subVec(componentOne, componentTwo) {
-  return (componentOne - componentTwo) * (componentOne - componentTwo)
+  return componentOne - componentTwo
+  // return (componentOne - componentTwo) * (componentOne - componentTwo)
 }
 
 function chiSquareDist(a, b) {
@@ -184,6 +201,10 @@ let distanceMeasures = [
   {
     name: 'manhatten distance',
     method: manhattenDistance
+  },
+  {
+    name: 'dimensionality invariant similarity',
+    method: dimensionalityInvariateSimilarity
   }
 ]
 
@@ -191,14 +212,14 @@ let bestK
 let bestScore = 0
 let bestDistanceMeasure
 let bestScaleFactor = 0
-// loop for 5 trials.
-for (let o = 0; o < 5; o++) {
+// loop for 1 trials.
+for (let o = 0; o < 1; o++) {
   // loop over distance measures
   for (let m = 0; m < distanceMeasures.length; m++) {
     // lopp over k values
     for (let j = 1; j < 15; j++) {
       // loop over scale factor values
-      for (let l = 1; l < 5; l++) {
+      for (let l = 1; l < 10; l++) {
         const kNN = new KNNClassifier(j, distanceMeasures[m].method, l)
         const result = harness.evaluator('./data/diabetes.csv', kNN).f1
         if (result > bestScore) {
