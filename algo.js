@@ -98,7 +98,6 @@ class KNNClassifier {
       let distances = []
       let trainingIndexes = []
       this.dataPoints.forEach((trainingVector, trainingIndex) => {
-
         distances.push(this.distanceMethod(
           scaleVectorComponents(trainingVector, this.scaleFactor), 
           scaleVectorComponents(testingVector, this.scaleFactor),
