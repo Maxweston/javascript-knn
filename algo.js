@@ -240,7 +240,7 @@ function argsort(d) {
 let distanceMeasures = [
   {
     name: 'euclidean Distance', 
-    method: euclideanDistance 
+    method: euclideanDistance
   },
   {
     name: 'weighted euclidean distance',
