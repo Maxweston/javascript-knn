@@ -10,6 +10,17 @@ function euclideanDistance(trainingVector, testingVector) {
   return sum
 }
 
+function weightedEuclideanDistance(trainingVector, testingVector, standardDiviationsArray) {
+  let sum = 0
+  // loop over the components of each vector, subtracting one from 
+  for(i = 0; i < testingVector.length; i++) {
+    
+    sum += (1/Math.pow(standardDiviationsArray[i]),2) * Math.pow(subVec(trainingVector[i], testingVector[i]), 2)
+  }
+  sum = Math.sqrt(sum)
+  return sum
+}
+
 function manhattenDistance(trainingVector, testingVector) {
   let sum = 0
   // loop over the components of each vector, subtracting one from 
@@ -82,7 +93,7 @@ class KNNClassifier {
 
   predict(testData) {
     let targets = []
-    calculateColumnStandardDeviation(this.dataPoints)
+    let standardDeviations = calculateColumnStandardDeviation(this.dataPoints)
     testData.forEach((testingVector, testingIndex) => {
       let distances = []
       let trainingIndexes = []
@@ -90,7 +101,8 @@ class KNNClassifier {
 
         distances.push(this.distanceMethod(
           scaleVectorComponents(trainingVector, this.scaleFactor), 
-          scaleVectorComponents(testingVector, this.scaleFactor)
+          scaleVectorComponents(testingVector, this.scaleFactor),
+          standardDeviations
         ))
         trainingIndexes.push(trainingIndex)
       })
@@ -149,21 +161,42 @@ function mode(numbers) {
 
 function calculateColumnStandardDeviation(trainingData) {
   let columnTotals = []
+  let columnMeans = []
+  let columnRootMeanSquaredDeviations = []
+  let columnStandardDeviations = []
   // set up column totals array
   for (let i = 0; i < trainingData[0].length; i++) {
     columnTotals.push(0)
   }
+  // set up root mean squared devations
+  for (let i = 0; i < trainingData[0].length; i++) {
+    columnRootMeanSquaredDeviations.push(0)
+  }
   // calculate column totals for each column.
   for (let i = 0; i < trainingData.length; i++) {
     for (let j = 0; j < trainingData[i].length; j++) {
-      console.log('here')
       columnTotals[j] = columnTotals[j] + trainingData[i][j] 
     }
   }
 
   // calculate the means
-  
-  console.log(columnTotals)
+  for (let i = 0; i < columnTotals.length; i++) {
+    columnMeans[i] = columnTotals[i] / trainingData.length
+  }
+  // console.log(columnMeans)
+  // work out root mean squared deviation
+  for (let i = 0; i < trainingData.length; i++) {
+    for (let j = 0; j < trainingData[i].length; j++) {
+      columnRootMeanSquaredDeviations[j] += Math.pow(trainingData[i][j] - columnMeans[j], 2)
+    }
+  }
+
+  // get standard deviations
+  for (let i = 0; i < columnRootMeanSquaredDeviations.length; i++) {
+    columnStandardDeviations[i] = Math.sqrt(columnRootMeanSquaredDeviations[i] / (trainingData.length - 1))
+  }
+
+  return columnStandardDeviations
 }
 
 function highestVote(numbers) {
@@ -211,29 +244,33 @@ let distanceMeasures = [
     method: euclideanDistance 
   },
   {
-    name: 'cosine similarity',
-    method: cosineSimilarity
+    name: 'weighted euclidean distance',
+    method: weightedEuclideanDistance
   },
-  {
-    name: 'chi square distance',
-    method: chiSquareDist
-  },
+  // {
+  //   name: 'cosine similarity',
+  //   method: cosineSimilarity
+  // },
+  // {
+  //   name: 'chi square distance',
+  //   method: chiSquareDist
+  // },
   {
     name: 'manhatten distance',
     method: manhattenDistance
   },
-  {
-    name: 'dimensionality invariant similarity',
-    method: dimensionalityInvariateSimilarity
-  }
+  // {
+  //   name: 'dimensionality invariant similarity',
+  //   method: dimensionalityInvariateSimilarity
+  // },
 ]
 
 let bestK
 let bestScore = 0
 let bestDistanceMeasure
 let bestScaleFactor = 0
-// loop for 1 trials.
-for (let o = 0; o < 1; o++) {
+// loop for 10 trials.
+for (let o = 0; o < 10; o++) {
   // loop over distance measures
   for (let m = 0; m < distanceMeasures.length; m++) {
     // lopp over k values
