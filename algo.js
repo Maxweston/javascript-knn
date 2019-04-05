@@ -82,6 +82,7 @@ class KNNClassifier {
 
   predict(testData) {
     let targets = []
+    calculateColumnStandardDeviation(this.dataPoints)
     testData.forEach((testingVector, testingIndex) => {
       let distances = []
       let trainingIndexes = []
@@ -144,6 +145,25 @@ function mode(numbers) {
     modes = [modes[Math.floor(Math.random() *  modes.length)]]
   }
   return modes;
+}
+
+function calculateColumnStandardDeviation(trainingData) {
+  let columnTotals = []
+  // set up column totals array
+  for (let i = 0; i < trainingData[0].length; i++) {
+    columnTotals.push(0)
+  }
+  // calculate column totals for each column.
+  for (let i = 0; i < trainingData.length; i++) {
+    for (let j = 0; j < trainingData[i].length; j++) {
+      console.log('here')
+      columnTotals[j] = columnTotals[j] + trainingData[i][j] 
+    }
+  }
+
+  // calculate the means
+  
+  console.log(columnTotals)
 }
 
 function highestVote(numbers) {
