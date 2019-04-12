@@ -38,11 +38,19 @@ function dotProduct(vec1, vec2) {
   return product
 }
 
+function vectorMagnitude(vector) {
+  let mag = 0
+  for (let i = 0; i < vector.length; i++) {
+    mag += Math.pow(vector[i], 2)
+  }
+  return mag
+}
+
 function cosineSimilarity(trainingVector, testingVector) {
   let dotPro = dotProduct(trainingVector, testingVector)
-  let magA = euclideanDistance(trainingVector, [0, 0, 0, 0, 0, 0, 0, 0])
-  let magB = euclideanDistance(testingVector, [0, 0, 0, 0, 0, 0, 0, 0])
-  return dotPro / (magA * magB)
+  let magA = vectorMagnitude(trainingVector)
+  let magB = vectorMagnitude(testingVector)
+  return Math.acos(dotPro / (magA * magB))
 }
 
 function dimensionalityInvariateSimilarity(trainingVector, testingVector) {
@@ -66,7 +74,7 @@ function subVec(componentOne, componentTwo) {
   // return (componentOne - componentTwo) * (componentOne - componentTwo)
 }
 
-function chiSquareDist(a, b) {
+function chiSquareDist(a, b, featureSum, vectorSum) {
   let sum = 0
   for (i = 0; i < a.length; i++) {
     const numerator = Math.pow(a[i] - b[i], 2)
@@ -78,12 +86,12 @@ function chiSquareDist(a, b) {
 }
 
 class KNNClassifier {
-  constructor(kValue, distanceMethod, scaleFactor = 1) {
+  constructor(kValue, distanceMethod, missingZeros = false) {
     this.kValue = kValue
     this.distanceMethod = distanceMethod
     this.dataPoints
     this.classes
-    this.scaleFactor = scaleFactor
+    this.missingZeros = missingZeros
   } 
 
   fit(trainData, trainLabels) {
@@ -93,14 +101,22 @@ class KNNClassifier {
 
   predict(testData) {
     let targets = []
+    // normalisation step.
+    // console.log(testData[0])
+    // testData = populateZeroValues(testData)
+    // this.dataPoints = populateZeroValues(this.dataPoints)
     let standardDeviations = calculateColumnStandardDeviation(this.dataPoints)
+    // console.log(testData[0])
+    this.dataPoints = minMaxScaleColumns(this.dataPoints)
+    testData = minMaxScaleColumns(testData)
     testData.forEach((testingVector, testingIndex) => {
       let distances = []
       let trainingIndexes = []
+      // get sums
       this.dataPoints.forEach((trainingVector, trainingIndex) => {
         distances.push(this.distanceMethod(
-          scaleVectorComponents(trainingVector, this.scaleFactor), 
-          scaleVectorComponents(testingVector, this.scaleFactor),
+          trainingVector,
+          testingVector, 
           standardDeviations
         ))
         trainingIndexes.push(trainingIndex)
@@ -121,6 +137,86 @@ class KNNClassifier {
     })
     return targets
   }
+}
+
+function populateZeroValues(data, ) {
+  let columnTotals = []
+  let columnMeans = []
+  let noZeroLengths = []
+  // let columnRootMeanSquaredDeviations = []
+  // let columnStandardDeviations = []
+  // set up column totals array
+  for (let i = 0; i < data[0].length; i++) {
+    columnTotals.push(0)
+  }
+
+  for (let i = 0; i < data[0].length; i++) {
+    noZeroLengths.push(0)
+  }
+  // set up root mean squared devations
+  // for (let i = 0; i < trainingData[0].length; i++) {
+  //   columnRootMeanSquaredDeviations.push(0)
+  // }
+  // calculate column totals for each column.
+  for (let i = 0; i < data.length; i++) {
+    for (let j = 0; j < data[i].length; j++) {
+      if (data[i][j] !== 0) {
+        columnTotals[j] = columnTotals[j] + data[i][j]
+        noZeroLengths[j] += 1 
+      }
+    }
+  }
+
+  // calculate the means
+  for (let i = 0; i < columnTotals.length; i++) {
+    for (let j = 0; j < data[0].length; j++) {
+      columnMeans[i] = columnTotals[i] / noZeroLengths[j]
+    }
+  }
+
+  // apply mean to zero values
+  for (let i = 0; i < data.length; i++) {
+    for (let j = 0; j < data[i].length; j++) {
+      if(data[i][j] === 0) {
+        data[i][j] = columnMeans[j]
+      }
+    }
+  }
+  return data
+}
+
+function minMaxScaleColumns(data) {
+  let columnMaximumArray = []
+  let columnMinimumArray = []
+  // set up column maximum array
+  for (let i = 0; i < data[0].length; i++) {
+    columnMaximumArray.push(0)
+  }
+  // calculate column maximum
+  for (let i = 0; i < data.length; i++) {
+    for (let j = 0; j < data[i].length; j++) {
+      columnMaximumArray[j] = Math.max(columnMaximumArray[j], data[i][j])
+    }
+  }
+  // get column minimum
+  for (let i = 0; i < data[0].length; i++) {
+    columnMinimumArray.push(0)
+  }
+  // calculate column minimum
+  for (let i = 0; i < data.length; i++) {
+    for (let j = 0; j < data[i].length; j++) {
+      columnMinimumArray[j] = Math.min(columnMinimumArray[j], data[i][j])
+    }
+  }
+
+  // apply scaling to data
+  for (let i = 0; i < data.length; i++) {
+    for (let j = 0; j < data[i].length; j++) {
+      data[i][j] = ( data[i][j] - columnMinimumArray[j] ) / (columnMaximumArray[j] - columnMinimumArray[j])
+    }
+  }
+
+  return data
 }
 
 // scale vector components.
@@ -216,6 +312,27 @@ function highestVote(numbers) {
   }
 }
 
+// function argsort(d) {
+//   let ind = []
+//   let tmp
+//   for (i = 0; i < d.length; i++) {
+//     ind[i] = i
+//   }
+//   for (i = 0; i < d.length; i++) {
+//     for (j = 0; j < d.length; j++) {
+//       if (d[j] > d[i]) {
+//         tmp = d[j];
+//         d[j] = d[i];
+//         d[i] = tmp;
+//         tmp = ind[j];
+//         ind[j] = ind[i];
+//         ind[i] = tmp;
+//       }
+//     }
+//   }
+//   return ind;
+// }
+
 function argsort(d) {
   let ind = []
   let tmp
@@ -223,14 +340,14 @@ function argsort(d) {
     ind[i] = i
   }
   for (i = 0; i < d.length; i++) {
-    for (j = 0; j < d.length; j++) {
-      if (d[j] > d[i]) {
+    for (j = 0; j < d.length-1; j++) {
+      if (d[j] > d[j+1]) {
         tmp = d[j];
-        d[j] = d[i];
-        d[i] = tmp;
+        d[j] = d[j+1];
+        d[j+1] = tmp;
         tmp = ind[j];
-        ind[j] = ind[i];
-        ind[i] = tmp;
+        ind[j] = ind[j+1];
+        ind[j+1] = tmp;
       }
     }
   }
@@ -240,11 +357,15 @@ function argsort(d) {
 let distanceMeasures = [
   {
     name: 'euclidean Distance', 
-    method: euclideanDistance
+    method: euclideanDistance,
+    bestK: 0,
+    bestScore: 0
   },
   {
     name: 'weighted euclidean distance',
-    method: weightedEuclideanDistance
+    method: weightedEuclideanDistance,
+    bestK: 0,
+    bestScore: 0
   },
   // {
   //   name: 'cosine similarity',
@@ -256,11 +377,15 @@ let distanceMeasures = [
   // },
   {
     name: 'manhatten distance',
-    method: manhattenDistance
+    method: manhattenDistance,
+    bestK: 0,
+    bestScore: 0
   },
   // {
   //   name: 'dimensionality invariant similarity',
-  //   method: dimensionalityInvariateSimilarity
+  //   method: dimensionalityInvariateSimilarity,
+  //   bestK: 0,
+  //   bestScore: 0
   // },
 ]
 
@@ -269,24 +394,29 @@ let bestScore = 0
 let bestDistanceMeasure
 let bestScaleFactor = 0
 // loop for 10 trials.
-for (let o = 0; o < 10; o++) {
+for (let o = 0; o < 5; o++) {
   // loop over distance measures
   for (let m = 0; m < distanceMeasures.length; m++) {
     // lopp over k values
     for (let j = 1; j < 15; j++) {
       // loop over scale factor values
-      for (let l = 1; l < 10; l++) {
-        const kNN = new KNNClassifier(j, distanceMeasures[m].method, l)
+      // for (let l = 1; l < 10; l++) {
+        // const kNN = new KNNClassifier(j, distanceMeasures[m].method, l)
+        const kNN = new KNNClassifier(j, distanceMeasures[m].method)
         const result = harness.evaluator('./data/diabetes.csv', kNN).f1
-        if (result > bestScore) {
-          bestK = j
-          bestScore = result
-          bestDistanceMeasure = distanceMeasures[m].name
-          bestScaleFactor = l
+        if (result > distanceMeasures[m].bestScore) {
+        // if (result > bestScore) {
+          distanceMeasures[m].bestK = j
+          distanceMeasures[m].bestScore = result
+          // bestK = j
+          // bestScore = result
+          // bestDistanceMeasure = distanceMeasures[m].name
+          // bestScaleFactor = 'none'
         }
-      }
+      // }
     }
   }
 }
-console.log('best score: ', bestScore, '\nbest k value: ', bestK, '\nbest distance method: ', bestDistanceMeasure, '\nbest scale factor: ', bestScaleFactor)
+// console.log('best score: ', bestScore, '\nbest k value: ', bestK, '\nbest distance method: ', bestDistanceMeasure, '\nbest scale factor: ', bestScaleFactor)
+console.log(distanceMeasures)
 
