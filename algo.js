@@ -10,17 +10,18 @@ const calculateColumnStandardDeviation = require('./helperFunctions/columnStanda
 const minMaxScaleColumns = require('./helperFunctions/minMaxScaleColumns')
 const highestVote = require('./helperFunctions/highestVote')
 const argsort = require('./helperFunctions/argSort')
+const sumFeatures = require('./helperFunctions/sumFeatures')
 
 const harness = require('./harness.js')
 
 
 class KNNClassifier {
-  constructor(kValue, distanceMethod, missingZeros = false) {
+  constructor(kValue, distanceMethod, columnWeights) {
     this.kValue = kValue
     this.distanceMethod = distanceMethod
     this.dataPoints
     this.classes
-    this.missingZeros = missingZeros
+    this.columnWeights = columnWeights
     this.columnTotals
     this.rowTotals
   } 
@@ -34,9 +35,8 @@ class KNNClassifier {
   predict(testData) {
     let targets = []
     // normalisation step.
-    // console.log(testData[0])
-    // testData = populateZeroValues(testData)
-    // this.dataPoints = populateZeroValues(this.dataPoints)
+    let trainingFeatureSums = sumFeatures(this.dataPoints)
+    let testingFeatureSums = sumFeatures(testData)
     let standardDeviations = calculateColumnStandardDeviation(this.dataPoints)
     // console.log(testData[0])
     this.dataPoints = minMaxScaleColumns(this.dataPoints)
@@ -110,6 +110,11 @@ let distanceMeasures = [
   },
 ]
 
+weights = [2, 1, 5, 3, 9, 3, 4, 2]
+
+
+console.log(weights)
+
 let bestK
 let bestScore = 0
 let bestDistanceMeasure
@@ -126,18 +131,12 @@ for (let o = 0; o < 5; o++) {
         const kNN = new KNNClassifier(j, distanceMeasures[m].method)
         const result = harness.evaluator('./data/diabetes.csv', kNN).f1
         if (result > distanceMeasures[m].bestScore) {
-        // if (result > bestScore) {
           distanceMeasures[m].bestK = j
           distanceMeasures[m].bestScore = result
-          // bestK = j
-          // bestScore = result
-          // bestDistanceMeasure = distanceMeasures[m].name
-          // bestScaleFactor = 'none'
-        }
-      // }
+      }
     }
   }
 }
-// console.log('best score: ', bestScore, '\nbest k value: ', bestK, '\nbest distance method: ', bestDistanceMeasure, '\nbest scale factor: ', bestScaleFactor)
+
 console.log(distanceMeasures)
 

@@ -1,6 +1,6 @@
-module.exports = function scaleVectorComponents(vector, scaleFactor) {
+module.exports = function scaleVectorComponents(vector, scaleVector) {
   for (i = 0; i < vector.length; i++) {
-    vector[i] * scaleFactor
+    vector[i] * scaleVector[i]
   }
   return vector
 }
