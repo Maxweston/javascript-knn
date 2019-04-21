@@ -51,7 +51,9 @@ class KNNClassifier {
         distances.push(this.distanceMethod(
           trainingVector,
           testingVector, 
-          standardDeviations
+          standardDeviations,
+          trainingFeatureSums,
+          testingFeatureSums
         ))
         trainingIndexes.push(trainingIndex)
       })
